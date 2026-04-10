@@ -1,0 +1,123 @@
+// C++ code
+//
+// ultrasonic blind walking stick
+// defines pin number
+const int tpin=13;//trigger pin
+const int epin=12;//echo pin
+const int pin=7;// 1st ultrasonic sensor buzzer pin
+const int t2pin=10;//trigger pin
+const int e2pin=9;//echo pin
+const int bpin=11;// 2nd ultrasonic sensor buzzer pin
+const int ldrpin=A0;
+const int ledpin=4;
+const int bbpin=6;// ldr buzzer pin
+const int wlpin=A1;// potentiometer(water level sensor)
+// defines variables
+float duration, distance, duration2, distance2;
+void setup ()
+{
+Serial.begin(9600); // starts the serial communication
+pinMode(tpin,OUTPUT);// sets trigger pin as output
+pinMode(epin,INPUT);// sets echopin as input
+pinMode(pin,OUTPUT); // sets buzzer pin as output
+pinMode(t2pin,OUTPUT);// sets trigger pin as output
+pinMode(e2pin,INPUT);// sets echopin as input
+pinMode(bpin,OUTPUT); // sets buzzer pin as output
+pinMode(bbpin,OUTPUT);// buzzer for ldr sensor
+pinMode(ldrpin,INPUT);  
+pinMode(wlpin,INPUT);
+
+}
+void loop ()
+ {
+  // 1 st ultrasonic sensor 
+ digitalWrite(tpin,LOW);
+ delayMicroseconds(2); //check if trig pin is clear
+ digitalWrite(tpin,HIGH);
+ delayMicroseconds(10); //kept high for 10microsec triggering the measurement
+ digitalWrite(tpin,LOW);
+// returns the sound wave travel time milliseconds
+duration= pulseIn(epin,HIGH);
+distance= (duration*0.034) /2; //calculation of distance
+Serial.print(distance);  
+Serial.println("cm");
+
+if(distance<75)//check distance is less than 75 cm
+{
+digitalWrite(pin,HIGH); // buzzer buzzes
+}
+else
+{
+ digitalWrite(pin,LOW);
+}
+delay(100);
+  
+  // 2nd ultrasonic sensor
+  digitalWrite(t2pin,LOW);
+ delayMicroseconds(2);
+ digitalWrite(t2pin,HIGH);
+ delayMicroseconds(10);
+ digitalWrite(t2pin,LOW);
+duration2= pulseIn(e2pin,HIGH);// returns the sound wave travel time milliseconds
+distance2= (duration2*0.034) /2; //calculation of distance
+Serial.print(distance2);  
+Serial.println("cm");
+
+if(distance2<50)//check distance is less than 75 cm
+{
+digitalWrite(bpin,HIGH); // buzzer buzzes
+}
+else
+{
+ digitalWrite(bpin,LOW);
+}
+delay(100);
+  
+  // water level sensor
+    int value = analogRead(wlpin);
+  if(value<150)
+  {
+    digitalWrite(bbpin,HIGH); // buzzer buzzes
+    Serial.print("DANGER !!!! Water level HIGH : ");
+    Serial.println(value);
+  }
+  if(value<400 && value>150)
+  {
+    digitalWrite(bbpin,LOW);
+    Serial.print("DANGER !!!! Water level MODERATE : ");
+    Serial.println(value);
+  }
+  if(value>400)
+  {
+    digitalWrite(bbpin,LOW); 
+    Serial.print("Water level LOW : ");
+    Serial.println(value);
+  }
+  
+  
+  
+  // ldr 
+  int ldrstatus = analogRead(ldrpin);
+
+if (ldrstatus <= 200)
+{
+
+digitalWrite(ledpin, HIGH);
+digitalWrite(bbpin,HIGH); // buzzer buzzes
+Serial.print("Its DARK, Turn on the LED : ");
+
+Serial.println(ldrstatus);
+
+}
+  else 
+  {
+
+digitalWrite(ledpin, LOW);
+    digitalWrite(bbpin,LOW);
+
+Serial.print("Its BRIGHT, Turn off the LED : ");
+
+Serial.println(ldrstatus);
+  }
+  
+}
